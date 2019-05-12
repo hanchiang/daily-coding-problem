@@ -1,6 +1,7 @@
 const { performance } = require('perf_hooks');
 
-const numSteps = 35;
+// Set the parameters for the problem;
+const numSteps = 40;
 const steps = [1, 3, 5];
 
 /**
@@ -32,9 +33,8 @@ console.log('Time taken:', (performance.now() - start) / 1000);
  * @param {number} n number of steps in staircase
  * @param {number []} steps number of steps you can climb at a time
  */
-function nStepsFast(n, steps) {
+function nStepsBottomUp(n, steps) {
   let cache = [];
-  let count = 0;
 
   cache[0] = 1;
   for (let i = 1; i <= n; i++) {
@@ -48,9 +48,41 @@ function nStepsFast(n, steps) {
       }
     }
   }
-  return cache[cache.length - 1];
+  return cache[n];
 }
 
 start = performance.now();
-console.log('nStepsFast O(steps * n)', nStepsFast(numSteps, steps));
+console.log('\nnStepsBottomUp O(steps * n)', nStepsBottomUp(numSteps, steps));
+console.log('Time taken:', (performance.now() - start) / 1000);
+
+/**
+ * Top down approach: Memoization, save the number of ways to get to step i
+ * @param {number} n number of steps in staircase
+ * @param {*} steps number of steps you can climb at a time
+ */
+function nStepsTopDown() {
+  this.memo = {};
+
+  this.run = function(n, steps) {
+    let count = 0;
+
+    if (n === 0) {
+      return 1;
+    } else if (n < 0) {
+      return 0;
+    } else if (this.memo[n]) {
+      return this.memo[n];
+    }
+    for (let i = 0; i < steps.length; i++) {
+      count += this.run(n - steps[i], steps);
+      this.memo[n] = count;
+    }
+    return count;
+  }
+}
+
+const topDownFn = new nStepsTopDown();
+start = performance.now();
+const count = topDownFn.run(numSteps, steps);
+console.log('\nnStepsTopDown O(n)', count);
 console.log('Time taken:', (performance.now() - start) / 1000);
